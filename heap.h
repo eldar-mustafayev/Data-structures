@@ -1,146 +1,121 @@
-#include<cstdlib>
-#include<algorithm>
-#include<iostream>
+#include<utility>
+#include<cstddef>
+
+//definition
 template<typename T>
 class heap
 {
 	public:
-		heap() : arr(nullptr) , size(0) , maxsize(1) { }
-		void insert(const T& a);
-		void remove(size_t i);
-		size_t parent(size_t i) const { return (i-1)/2; }
-		size_t leftchild(size_t i) const { return 2*i+1; }
-		size_t rightchild(size_t i) const { return 2*i+2; }
-		void extractmax() { remove(0); }
-		void shiftup(size_t i);
-		static void shiftdown(T* arr,const size_t& size,size_t i);
-		void changepriority(size_t i,const T& a);
-		T getmax() const;
+		heap(size_t n_childs = 2) : arr(nullptr), n_childs(n_childs), _size_(0), _max_size_(1) { }
+
+		void push(const T& a);
+
+		void pop();
+
+		void replace(const T& a);
+	
+		void reserve(size_t n);
+	
+		size_t size() { return _size_; }
+
+		T top() const { return arr[0]; }
+	
+		bool empty() { return _size_ == 0; }
+
 		~heap() { delete[] arr; }
+
 	private:
-		void arrange();
+		void arrange() { reserve(_max_size_ << 1); };
+
+		void shiftup(size_t i);
+
+		void shiftdown(size_t i);
 
 		T* arr;
-		size_t size,maxsize;
+		size_t n_childs, _size_, _max_size_;
 };
 
-template<typename T,size_t N>
-T* heapsort(T (&a)[N],size_t k=N);
 
-
-
-
-
-
-
-
-
-
-
+//implementation
 template<typename T>
-void heap<T>::insert(const T& a)
+void heap<T>::reserve(size_t n)
 {
-	if(size+1>=maxsize)
-		arrange();
-	arr[size++]=a;
-	shiftup(size-1);
-}
+	_max_size_ = n;
+	T* temp = new T[_max_size_];
 
+	for (size_t i = 0; i < _size_; i++)
+		temp[i] = arr[i];
+
+	delete[] arr;
+	arr = temp;
+}
 
 template<typename T>
 void heap<T>::shiftup(size_t i)
 {
-    size_t parent;
-    while(true)
-    {
-        parent=(i-1)/2;
-        if(i>0 and arr[i]<arr[parent])
-        {
-            std::swap(arr[parent],arr[i]);
-            i=parent;
-        }
-        else
-            break;
-    }
-}
-
-
-template<typename T>
-void heap<T>::shiftdown(T* arr,const size_t& size,size_t i)
-{
-	size_t index=i,child;
-	while(true)
+	static size_t parent;
+	while (true)
 	{
-		child=2*i+1;
-		if(child<size and arr[child]>arr[index])
-			index=child;
-		child=2*i+2;
-		if(child<size and arr[child]>arr[index])
-			index=child;
-		if(i!=index)
+		parent = (i - 1) / n_childs;
+		if (i > 0 and arr[i] < arr[parent])
 		{
-			std::swap(arr[i],arr[index]);
-			i=index;
+			std::swap(arr[parent], arr[i]);
+			i = parent;
 		}
 		else
 			break;
 	}
 }
 
-
 template<typename T>
-T heap<T>::getmax() const
+void heap<T>::shiftdown(size_t i)
 {
-	if(!size)
-		exit(-1);
-	return arr[0];
-}
-
-
-template<typename T>
-void heap<T>::remove(size_t i)
-{
-    if(!size)
-        exit(-1);
-    std::swap(arr[i],arr[--size]);
-    shiftdown(arr,size,i);
-}
-
-
-template<typename T>
-void heap<T>::changepriority(size_t i,const T& a)
-{
-    arr[i]=a;
-    if(arr[parent(i)]<a)
-        shiftup(i);
-    else
-        shiftdown(arr,size,i);
-}
-
-
-template<typename T>
-void heap<T>::arrange()
-{
-	T* temp=new T[maxsize*=2];
-	for(size_t i=0;i<size;i++)
-		temp[i]=arr[i];
-	delete[] arr;
-	arr=temp;
-}
-
-
-template<typename T,size_t N>
-T* heapsort(T (&a)[N],size_t k)
-{
-	size_t size=N;
-	for(size_t i=size/2;i>0;--i)
-		heap<T>::shiftdown(a,size,i-1);
-
-	while(k--)
+	static size_t index, child;
+	index = i;
+	while (true)
 	{
-		std::swap(a[0],a[--size]);
-		heap<T>::shiftdown(a,size,0);
-	}
+		for (size_t k = 1; k <= n_childs; ++k)
+		{
+			child = i * n_childs + k;
+			if (child < _size_ and arr[child] < arr[index])
+				index = child;
+		}
 
-	return a+size;
+		if (i != index)
+		{
+			std::swap(arr[i], arr[index]);
+			i = index;
+		}
+		else
+			break;
+	}
+}
+
+template<typename T>
+void heap<T>::push(const T& a)
+{
+	if (_size_ + 1 >= _max_size_)
+		arrange();
+
+	arr[_size_++] = a;
+	shiftup(_size_ - 1);
+}
+
+template<typename T>
+void heap<T>::pop()
+{
+	std::swap(arr[0], arr[--_size_]);
+	shiftdown(0);
+}
+
+template<typename T>
+void heap<T>::replace(const T& a)
+{
+	arr[0] = a;
+	shiftdown(0);
+}
+
+int main()
+{
+    heap<int> a;
 }
