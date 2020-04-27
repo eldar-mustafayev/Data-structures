@@ -97,14 +97,14 @@ void heap<T>::push(const T& a)
 	if (_size_ + 1 >= _max_size_)
 		arrange();
 
-	arr[_size_++] = a;
-	shiftup(_size_ - 1);
+	arr[_size_] = a;
+	shiftup(_size_++);
 }
 
 template<typename T>
 void heap<T>::pop()
 {
-	std::swap(arr[0], arr[--_size_]);
+	arr[0] = arr[--_size_];
 	shiftdown(0);
 }
 
