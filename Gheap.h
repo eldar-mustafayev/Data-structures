@@ -11,9 +11,9 @@ class Gheap
 
         bool empty() { return size == 0; }
 
-        void insert(unsigned key, T value);
+        void insert(unsigned vertex, T value);
 
-        T dist(unsigned key);
+        T dist(unsigned vertex);
 
         void pop();
 
